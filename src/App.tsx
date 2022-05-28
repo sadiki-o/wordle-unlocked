@@ -12,11 +12,11 @@ import { TStore } from './app/store';
 import { updateLines } from './app/slice';
 import { alphabet } from './Types/types';
 
-type Anchor = 'left';
 
+type Anchor = 'left';
 const App = () => {
   const dispatch = useDispatch();
-  const { gameState, wordLength } = useSelector((state: TStore) => state.appSliceReducer);
+  const { gameState, playWrong, currentLine } = useSelector((state: TStore) => state.appSliceReducer);
 
   const [state, setState] = React.useState({
     left: false
@@ -39,6 +39,18 @@ const App = () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+
+  React.useEffect(() => {
+    if (playWrong === true) {
+      new Audio(`${process.env.PUBLIC_URL}/audio/wrong.mp3`)
+    }
+    if(gameState === "Win" ){
+      new Audio(`${process.env.PUBLIC_URL}/audio/gta.mp3`).play();
+    }
+    if(currentLine === 5 && gameState === "Loss"){
+      new Audio(`${process.env.PUBLIC_URL}/audio/fail.mp3`).play();
+    }
+  }, [gameState, playWrong])
 
   const toggleDrawer =
     (anchor: Anchor, open: boolean) =>
