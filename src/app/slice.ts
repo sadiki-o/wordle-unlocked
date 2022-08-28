@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {TGameState, TScore, TWordLength } from '../Types/types'
+import useSound from 'use-sound'
+import mySound from '../../public/audio/gta.mp3'
 
 
 
@@ -14,7 +16,6 @@ interface WordleState {
     }>;
     chosenWord?: string;
     score?: TScore;
-    playWrong: boolean;
 }
 const appSlice = createSlice({
     name: 'profile',
@@ -3021,11 +3022,10 @@ const appSlice = createSlice({
                 ] },
         ],
         chosenWord: '',
-        score: [{}],
-        playWrong: false
+        score: [{}]
     } as WordleState,
     reducers: {
-        updateWordLength: (state: WordleState, { payload }: PayloadAction<TWordLength>) => {
+        updateWordLength: (state, { payload }: PayloadAction<TWordLength>) => {
             if (state.gameState === "Loss" || state.gameState === "Win") {
                 if (!isWordLength(payload)) throw new Error();
                 let d: HTMLCollectionOf<HTMLTableCellElement> = document.getElementsByTagName(`th`)!;
@@ -3045,7 +3045,7 @@ const appSlice = createSlice({
                 return val > 3 && val < 10;
             }
         },
-        updateLines:  (state:WordleState, { payload }: PayloadAction<string>) => {
+        updateLines:  (state, { payload }: PayloadAction<string>) => {
             if((payload === 'tryValidate' && state.lines[state.currentLine][state.wordLength - 1] === '')
             || (payload === 'tryValidate' && state.gameState !== 'Pending')){
 
@@ -3072,7 +3072,6 @@ const appSlice = createSlice({
                         d[i].style.backgroundColor = '#00ff00';
                         d[i].style.color = 'white';
                     }
-                    state.playWrong = false;
                     alert('You Win');
                 }else{
                     let d = document.getElementById(`l${state.currentLine}`)?.children! as HTMLCollectionOf<HTMLElement>;
@@ -3085,12 +3084,9 @@ const appSlice = createSlice({
                             d[i].style.backgroundColor = '#FFCD38';
                             d[i].style.color = 'white';
                         }
-                        state.playWrong = true;
                     }
-                        
                     if(state.currentLine === 5){
                         appSlice.caseReducers.updateGameState(state, {payload: "Loss", type: 'string'});
-                        state.playWrong = false;
                         alert('you lose!')
                     } else {
                         state.currentLine++;
@@ -3106,24 +3102,24 @@ const appSlice = createSlice({
 
             }
         },
-        updateGameState: (state:WordleState, { payload }: PayloadAction<TGameState>) => {
+        updateGameState: (state, { payload }: PayloadAction<TGameState>) => {
 
                 state.gameState = payload;
         },
-        updateChosenWord: (state:WordleState) => {
+        updateChosenWord: (state) => {
             if(state.gameState === "Loss" || state.gameState === "Win"){
                 let wordsList: Array<string> = state.listOfWords.find(el => el['length'] === state.wordLength)?.words!;
                 let randomWord = wordsList[Math.round(Math.random() * wordsList.length)];
                 state.chosenWord = randomWord.toUpperCase();
             }
         },
-        updateScore: (state:WordleState, { payload }: PayloadAction<TScore>) => {
+        updateScore: (state, { payload }: PayloadAction<TScore>) => {
             return {
                 ...state,
                 score: payload
             }
         },
-        resetGameState: (state:WordleState) => {
+        resetGameState: (state) => {
             state.lines = new Array(6).fill(null).map(el => new Array(state.wordLength).fill(null).map(el => "")) ;
             state.currentLine = 0;
             let d: HTMLCollectionOf<HTMLTableCellElement> = document.getElementsByTagName(`th`)!;
