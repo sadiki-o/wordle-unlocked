@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {TGameState, TScore, TWordLength } from '../Types/types'
-import useSound from 'use-sound'
-import mySound from '../../public/audio/gta.mp3'
 
 
 
